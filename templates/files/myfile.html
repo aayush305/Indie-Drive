@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %} | File Detail {% endblock %}
+
+{% block content %}
+
+{% if not user.id == file.owner.id and not file.is_public and user not in shared %}
+<!-- Not Owner; Private; Not Shared -->
+<h2>You are not authorized to access this file!! Please request the file owner for access.</h2>
+{% else %}
+<section id="showcase-inner" class="py-5 text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-12">
+                <h1 class="display-4">{{file.name}}</h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="file" class="py-4">
+    <div class="container">
+        <a href="{% url 'myfiles' %}" class="btn btn-light mb-4">Back To files</a>
+        <div class="row">
+            <div class="col-md-9">
+                <!-- Fields -->
+                <div class="row mb-5 fields">
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item text-secondary">
+                                <i class="fas fa-calendar"></i> Upload Time:
+                                <span class="float-right">{{file.upload_date | naturaltime }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            {% if file.is_public %}
+                            <li class="list-group-item text-secondary">
+                                <i class="fas fa-user"></i> Access:
+                                <span class="float-right">Public
+                                </span>
+                            </li>
+                            {% else %}
+                            <li class="list-group-item text-secondary">
+                                <i class="fas fa-user"></i> Access:
+                                <span class="float-right">Private
+                                </span>
+                            </li>
+                            {% endif %}
+                            <li class="list-group-item text-secondary">
+                                <i class="fas fa-square"></i> Shared With:
+                                <ul class="float-right">
+                                    {% if shared %}
+                                    {% for shUser in shared %}
+                                    <li>{{shUser.first_name}} {{shUser.last_name}}</li>
+                                    {% endfor %}
+                                    {% else %}
+                                    None
+                                    {% endif %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <a class="text-center btn-info btn-block btn-lg" href="{{file.s3Uri}}" target="_blank">Download file</a>
+                {% if user.id == file.owner.id %}
+                <a class="text-center text-white btn-primary btn-block btn-lg" data-toggle="modal"
+                    data-target="#shareFileModal">Share the file</a>
+                <form action="{% url 'delete_file' %}" id="delete_file" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="file_id" name="file_id" value="{{file.id}}">
+                    <button type="submit" class="mt-2 btn-danger btn-block btn-lg">Delete File</button>
+                </form>
+                {% if file.is_public %}
+                <form action="{% url 'make_file_private' %}" id="make_file_private" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="file_id" name="file_id" value="{{file.id}}">
+                    <button type="submit" class="mt-2 btn-block btn-lg border border-dark">Make Private</button>
+                </form>
+                {% else %}
+                <form action="{% url 'make_file_public' %}" id="make_file_public" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="file_id" name="file_id" value="{{file.id}}">
+                    <button type="submit" class="mt-2 btn-block btn-lg border border-dark">Make Public</button>
+                </form>
+                {% endif %}
+                {% if shared %}
+                    <form action="{% url 'stop_sharing' %}" id="stop_sharing" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" id="file_id" name="file_id" value="{{file.id}}">
+                        <button type="submit" class="mt-2 btn-warning btn-block btn-lg">Stop all sharing</button>
+                    </form>
+                {% endif %}                
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Share File Modal -->
+<div class="modal fade" id="shareFileModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareFileModalLabel">Share a file</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'share_with_user' %}" id="share_with_user" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="file_name" class="col-form-label">File:</label>
+                        <input type="text" id="file_name" name="file_name" class="form-control" value="{{file.name}}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" id="file_id" name="file_id" value="{{file.id}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="receiver_email" class="col-form-label">Email (share with):</label>
+                        <input type="email" id="receiver_email" name="receiver_email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="receiver_message" class="col-form-label">Message:</label>
+                        <textarea id="receiver_message" name="receiver_message" class="form-control"></textarea>
+                    </div>
+                    <hr>
+                    <button type="submit" class="btn btn-block btn-secondary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif%}
+
+{% endblock %}

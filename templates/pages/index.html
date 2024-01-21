@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %} | Upload a file {% endblock %}
+
+{% block content %}
+
+<!-- Include alerts -->
+{% include 'partials/_alerts.html' %}
+
+<!-- Showcase -->
+<section id="showcase">
+  <div class="container text-center">
+    <div class="home-search p-5">
+      <div class="overlay p-5">
+        <h1 class="display-4 mb-4">
+          Storing Files Just Got So Easy
+        </h1>
+        <div class="search">
+          <form action="{% url 'upload_file' %}" id="upload_file" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div>
+              <input class="form-control form-control-lg" id="file" type="file" name="file">
+            </div>
+            <button class="btn btn-secondary btn-block mt-4" type="submit">Upload File</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

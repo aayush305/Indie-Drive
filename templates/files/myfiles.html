@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %} | My Files {% endblock %}
+
+{% block content %}
+
+<!-- Include alerts -->
+{% include 'partials/_alerts.html' %}
+
+<!-- My files -->
+<section id="showcase-inner" class="py-5 text-white">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-12">
+        <h1 class="display-4">My Files</h1>
+        <p class="lead">Here are your files!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- files -->
+<section id="files" class="py-4">
+  <div class="container">
+    <div class="row">
+
+      {% if files %}
+        {% for file in files %}
+          <!-- file -->
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card file-preview">
+          <div class="card-body">
+            <div class="file-heading text-center">
+              <h4 class="text-primary">{{file.name}}</h4>
+            </div>
+            <hr>
+            <div class="row py-2 text-secondary">
+              <div class="col-md-6 col-sm-12">
+                <i class="fas fa-clock"></i> {{ file.upload_date | timesince }}
+              </div>
+            </div>
+            <hr>
+            <div class="row py-2 text-secondary">
+              <div class="col-12">
+                {% if file.is_public %}
+                <p class="text-info"><i class="fas fa-user"></i> Public</p>
+                {% else %}
+                <p class="text-primary"><i class="fas fa-user"></i> Private</p>
+                {% endif %}
+              </div>
+            </div>
+            <hr>
+            <a href="{% url 'myfile' file.id %}" class="btn btn-primary btn-block">More Info</a>
+          </div>
+        </div>
+      </div>
+        {% endfor %}  
+      {% else %}
+        <div class="col-md-12">
+          <p>No files uploaded yet</p>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+
+<!-- Shared Files -->
+<section id="showcase-inner" class="py-5 text-white">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-12">
+        <h1 class="display-4">File Shared with me</h1>
+        <p class="lead">The following files shared with you!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- files -->
+<section id="files" class="py-4">
+  <div class="container">
+    <div class="row">
+
+      {% if shared_files %}
+      {% for shared_file in shared_files %}
+      <!-- file -->
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card file-preview">
+          <div class="card-body">
+            <div class="file-heading text-center">
+              <h4 class="text-primary">{{shared_file.name}}</h4>
+            </div>
+            <hr>
+            <div class="row py-2 text-secondary">
+              <div class="col-md-6 col-sm-12">
+                <i class="fas fa-clock"></i> {{ shared_file.upload_date | timesince }}
+              </div>
+            </div>
+            <hr>
+            <div class="row py-2 text-secondary">
+              <div class="col-12">
+                {% if shared_file.is_public %}
+                <p class="text-info"><i class="fas fa-user"></i> Public</p>
+                {% else %}
+                <p class="text-primary"><i class="fas fa-user"></i> Private</p>
+                {% endif %}
+              </div>
+            </div>
+            <hr>
+            <a href="{% url 'myfile' shared_file.id %}" class="btn btn-primary btn-block">More Info</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="col-md-12">
+        <p>No files shared with you yet</p>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
